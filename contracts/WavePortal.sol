@@ -7,15 +7,44 @@ import "hardhat/console.sol";
 contract WavePortal {
     uint256 totalWaves;
     address[] sendersArray;
+    uint32 userCount;
+
+    struct WaveDetail {
+        uint timestamp;
+        uint gasCost;
+    }
+
+    //mapping to store user's details
+    struct Interaction {
+        uint32 numberOfWaves;
+        uint balance;
+        //define the charateristics of ech wave
+        // the timestamp
+        // the gas cost
+        mapping(uint32 => WaveDetail) waveRecord;
+    }
+
+    mapping(address => Interaction) storeDetails;
 
     constructor() {
         console.log("Yo yo, Lakeman's Smart contract!!!");
     }
 
-    function wave() public {
+    function wave() public payable {
         sendersArray.push(msg.sender);
-        totalWaves += 1;
+        totalWaves += 1; 
+
+        storeDetails[msg.sender].balance = address(msg.sender).balance;
+
+        WaveDetail memory waveee = WaveDetail(block.timestamp, tx.gasprice);
+        storeDetails[msg.sender].waveRecord[storeDetails[msg.sender].numberOfWaves] = waveee;
+        storeDetails[msg.sender].numberOfWaves++;
+
+        // storeDetails[msg.sender] = userWaveDetails;
         console.log("%s has waved!", msg.sender);
+        console.log("wave details %s",  storeDetails[msg.sender].balance);
+        console.log("wave gas cost %s",  storeDetails[msg.sender].waveRecord[storeDetails[msg.sender].numberOfWaves].gasCost);
+        console.log("wave transaction time stamp  %s",  storeDetails[msg.sender].waveRecord[storeDetails[msg.sender].numberOfWaves].timestamp);
     }
 
     function getTotalWaves() public view returns (uint256) {
